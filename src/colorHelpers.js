@@ -72,4 +72,11 @@ const getFontColor = (color, val) => {
 		return 'white';
 	}
 };
-export { generateLevels, getScales, getFontColor };
+const getRandomColors = (num) => {
+	let colors = [];
+	for (let i = 0; i < num; i++) {
+		colors.push(chroma.random());
+	}
+	return colors;
+};
+export { generateLevels, getScales, getFontColor, getRandomColors };

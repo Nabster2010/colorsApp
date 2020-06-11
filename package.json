@@ -11,7 +11,9 @@
 		"@testing-library/user-event": "^7.1.2",
 		"chroma-js": "^2.0.3",
 		"react": "^16.13.1",
+		"react-color": "^2.18.1",
 		"react-dom": "^16.13.1",
+		"react-draggable": "^4.4.3",
 		"react-router-dom": "^5.2.0",
 		"react-scripts": "3.4.1"
 	},

@@ -6,6 +6,7 @@ import Shades from './components/Shades';
 import PalettesPreview from './components/PalettesPreview';
 import { Switch, Route } from 'react-router-dom';
 import { generateLevels } from './colorHelpers';
+import NewPalette from './components/NewPalette';
 function App() {
 	const findPalette = (id) => seedColors.find((palette) => palette.id === id);
 
@@ -39,6 +40,7 @@ function App() {
 						/>
 					)}
 				/>
+				<Route exact path='/palettes/new' component={NewPalette} />
 			</Switch>
 		</div>
 	);

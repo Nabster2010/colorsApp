@@ -40,6 +40,9 @@ const useStyles = makeStyles({
 		textDecoration: 'none',
 		color: 'blue',
 	},
+	newPalette: {
+		color: 'white',
+	},
 });
 
 const PalettesPreview = ({ palettes }) => {
@@ -49,6 +52,9 @@ const PalettesPreview = ({ palettes }) => {
 			<div className={classes.container}>
 				<div className={classes.nav}>
 					<h1>React Colors</h1>
+					<Link className={classes.newPalette} to='/palettes/new'>
+						New Palette
+					</Link>
 				</div>
 				<div className={classes.palettes}>
 					{palettes.map((palette) => (

@@ -12,6 +12,16 @@ const useStyles = makeStyles((theme) => ({
 	close: {
 		padding: theme.spacing(0.5),
 	},
+	palette: {
+		height: '100vh',
+		display: 'flex',
+		flexDirection: 'column',
+	},
+	paletteColors: {
+		display: 'flex',
+		flexWrap: 'wrap',
+		height: '90%',
+	},
 }));
 const Palette = ({ palette }) => {
 	const [open, setOpen] = React.useState(false);
@@ -22,7 +32,7 @@ const Palette = ({ palette }) => {
 
 	const classes = useStyles();
 	return (
-		<div className='palette'>
+		<div className={classes.palette}>
 			<Header
 				setValue={setValue}
 				value={value}
@@ -31,7 +41,7 @@ const Palette = ({ palette }) => {
 				setOpen={setOpen}
 				slider={true}
 			/>
-			<div className='palette-colors'>
+			<div className={classes.paletteColors}>
 				{palette.colors[value].map((color) => (
 					<ColorBox
 						color={color}
