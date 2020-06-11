@@ -1,0 +1,10 @@
+.palette {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+.palette-colors {
+	display: flex;
+	flex-wrap: wrap;
+	height: 90%;
+}
