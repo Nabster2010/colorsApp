@@ -1,6 +1,5 @@
 import React from 'react';
 import './ColorBox.css';
-import chroma from 'chroma-js';
 import { getFontColor } from '../colorHelpers';
 import { makeStyles } from '@material-ui/styles';
 import { Link, useParams } from 'react-router-dom';

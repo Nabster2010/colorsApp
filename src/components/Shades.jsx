@@ -17,7 +17,6 @@ const useStyles = makeStyles({
 });
 const Shades = ({ palette, history }) => {
 	const [open, setOpen] = React.useState(false);
-	const [value, setValue] = React.useState(500);
 	const [selection, setselection] = React.useState('hex');
 	const handleClose = () => setOpen(false);
 	const classes = useStyles();

@@ -7,18 +7,20 @@ import PalettesPreview from './components/PalettesPreview';
 import { Switch, Route } from 'react-router-dom';
 import { generateLevels } from './colorHelpers';
 import NewPalette from './components/NewPalette';
-function App() {
-	const findPalette = (id) => seedColors.find((palette) => palette.id === id);
 
+function App() {
+	const [palettes, setPalettes] = React.useState(seedColors);
+	const findPalette = (id) => palettes.find((palette) => palette.id === id);
+	const savePalette = (newPalette) => {
+		setPalettes([...palettes, newPalette]);
+	};
 	return (
 		<div className='App'>
 			<Switch>
 				<Route
 					exact
 					path='/palettes'
-					render={(props) => (
-						<PalettesPreview palettes={seedColors} {...props} />
-					)}
+					render={(props) => <PalettesPreview palettes={palettes} {...props} />}
 				/>
 				<Route
 					exact
@@ -40,7 +42,13 @@ function App() {
 						/>
 					)}
 				/>
-				<Route exact path='/palettes/new' component={NewPalette} />
+				<Route
+					exact
+					path='/palettes/new'
+					render={() => (
+						<NewPalette savePalette={savePalette} palettes={palettes} />
+					)}
+				/>
 			</Switch>
 		</div>
 	);

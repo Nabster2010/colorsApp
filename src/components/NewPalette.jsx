@@ -1,11 +1,7 @@
 import React from 'react';
-import chroma from 'chroma-js';
-import { getRandomColors } from '../colorHelpers';
 import './NewPalette.css';
 import { ChromePicker } from 'react-color';
-//Drawer imports
 import clsx from 'clsx';
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -15,17 +11,22 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import Draggable, { DraggableCore } from 'react-draggable';
+import { makeStyles } from '@material-ui/core/styles';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
+import { useHistory } from 'react-router-dom';
+import DraggableList from './DraggableList';
+import arrayMove from 'array-move';
 
-//drawer styles
 const drawerWidth = 350;
-
+const maxColors = 20;
 const useStyles = makeStyles((theme) => ({
 	root: {
 		display: 'flex',
 		height: '100%',
+		'& .MuiFilledInput-root': {
+			margin: theme.spacing(1),
+			width: 300,
+		},
 	},
 	toolBarButtons: {
 		marginLeft: 'auto',
@@ -73,7 +74,6 @@ const useStyles = makeStyles((theme) => ({
 	},
 	content: {
 		flexGrow: 1,
-		padding: theme.spacing(3),
 		transition: theme.transitions.create('margin', {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.leavingScreen,
@@ -95,10 +95,7 @@ const useStyles = makeStyles((theme) => ({
 		alignContent: 'flex-start',
 		flexWrap: 'wrap',
 	},
-	colorBox: {
-		width: '20%',
-		height: '25%',
-	},
+
 	drawerBody: {
 		textAlign: 'center',
 		width: '100%',
@@ -109,42 +106,131 @@ const useStyles = makeStyles((theme) => ({
 		'& div': {
 			margin: 'auto',
 		},
-		'& input': {
-			marginTop: '30px',
+	},
+	addButton: {
+		backgroundColor: (props) =>
+			props.colors.length >= maxColors ? 'gray' : props.background,
+		width: '90%',
+		height: '60px',
+		fontSize: '30px',
+		'&:hover': {
+			backgroundColor: (props) => props.background,
+			opacity: '0.7',
 		},
+	},
+	picker: {
+		width: '90% !important',
+	},
+	input: {
+		width: '90% !important',
 	},
 }));
 
-const NewPalette = () => {
-	const classes = useStyles();
-	const theme = useTheme();
-	console.log(chroma.random().name());
-
-	const [colors, setColors] = React.useState([]);
-	const [background, setBackground] = React.useState('#fffff');
-	const [open, setOpen] = React.useState(false);
+const NewPalette = ({ savePalette, palettes }) => {
+	const [state, setstate] = React.useState({
+		colorName: '',
+		paletteName: '',
+		colors: [],
+		color: '',
+		open: false,
+	});
+	const history = useHistory();
 	const handleChangeComplete = (color) => {
-		setBackground(color.hex);
-		setColors([...colors, color.hex]);
+		setstate({ ...state, color: color.hex });
+	};
+	const onSortEnd = ({ oldIndex, newIndex }) => {
+		setstate({ ...state, colors: arrayMove(state.colors, oldIndex, newIndex) });
 	};
 
+	const handleInputChange = (e) => {
+		setstate({ ...state, [e.target.name]: e.target.value });
+	};
 	const handleDrawerOpen = () => {
-		setOpen(true);
+		setstate({ ...state, open: true });
+	};
+	const handleSubmit = () => {
+		const newPalette = {
+			id: state.paletteName.toLowerCase().replace(/ /g, '-'),
+			paletteName: state.paletteName,
+			colors: state.colors,
+		};
+		savePalette(newPalette);
+		history.push('/palettes');
+	};
+	const deleteColor = (hex) => {
+		setstate({
+			...state,
+			colors: state.colors.filter((color) => color.color !== hex),
+		});
 	};
 
 	const handleGetRandomColor = () => {
-		setColors([...colors, chroma.random().hex()]);
+		let color =
+			palettes[Math.floor(Math.random() * palettes.length)].colors[
+				Math.floor(Math.random() * palettes.length)
+			];
+		state.colors.every((item) => item.color !== color.color)
+			? setstate({ ...state, colors: [...state.colors, color] })
+			: console.log('exist');
 	};
+
 	const handleDrawerClose = () => {
-		setOpen(false);
+		setstate({ ...state, open: false });
+		return;
 	};
+
+	const addColor = (e) => {
+		e.preventDefault();
+		setstate({
+			...state,
+			colors: [...state.colors, { color: state.color, name: state.colorName }],
+		});
+	};
+
+	const randomFill = () => {
+		const randomColors = [];
+		while (randomColors.length < 20) {
+			let color =
+				palettes[Math.floor(Math.random() * palettes.length)].colors[
+					Math.floor(Math.random() * palettes.length)
+				];
+			if (
+				randomColors.every((item) => item.color !== color.color) ||
+				randomColors.length === 0
+			) {
+				randomColors.push(color);
+			}
+		}
+		setstate({ ...state, colors: randomColors });
+	};
+	React.useEffect(() => {
+		randomFill();
+	}, []);
+	React.useEffect(() => {
+		ValidatorForm.addValidationRule('isColorNameUnique', (value) =>
+			state.colors.every(
+				({ name }) => name.toLowerCase() !== value.toLowerCase()
+			)
+		);
+		ValidatorForm.addValidationRule('isPaletteNameUnique', (value) =>
+			palettes.every(
+				(palette) => palette.paletteName.toLowerCase() !== value.toLowerCase()
+			)
+		);
+		ValidatorForm.addValidationRule('isColorUnique', (value) =>
+			state.colors.every((color) => color.color !== state.color)
+		);
+	}, [state, palettes]);
+
+	const props = { background: state.color, colors: state.colors };
+	const classes = useStyles(props);
 	return (
 		<div className={classes.root}>
 			<CssBaseline />
 			<AppBar
 				position='fixed'
 				className={clsx(classes.appBar, {
-					[classes.appBarShift]: open,
+					[classes.appBarShift]: state.open,
 				})}
 			>
 				<Toolbar>
@@ -153,7 +239,7 @@ const NewPalette = () => {
 						aria-label='open drawer'
 						onClick={handleDrawerOpen}
 						edge='start'
-						className={clsx(classes.menuButton, open && classes.hide)}
+						className={clsx(classes.menuButton, state.open && classes.hide)}
 					>
 						<MenuIcon />
 					</IconButton>
@@ -161,10 +247,30 @@ const NewPalette = () => {
 						Create A Palette
 					</Typography>
 					<div className={classes.toolBarButtons}>
-						<Button variant='contained' color='secondary'>
+						<Button
+							variant='contained'
+							color='secondary'
+							onClick={() => history.goBack()}
+						>
 							GO BACK
 						</Button>
-						<Button variant='contained' color='primary'>
+						<ValidatorForm onSubmit={handleSubmit}>
+							<TextValidator
+								label='paletteName'
+								onChange={handleInputChange}
+								name='paletteName'
+								value={state.paletteName}
+								validators={['required', 'isPaletteNameUnique']}
+								errorMessages={[
+									'this field is required',
+									' Palette name must be unique',
+								]}
+							/>
+							<Button type='submit' variant='contained' color='primary'>
+								Save Palette
+							</Button>
+						</ValidatorForm>
+						<Button variant='contained' color='secondary'>
 							SAVE PALETTE
 						</Button>
 					</div>
@@ -174,18 +280,14 @@ const NewPalette = () => {
 				className={classes.drawer}
 				variant='persistent'
 				anchor='left'
-				open={open}
+				open={state.open}
 				classes={{
 					paper: classes.drawerPaper,
 				}}
 			>
 				<div className={classes.drawerHeader}>
 					<IconButton onClick={handleDrawerClose}>
-						{theme.direction === 'ltr' ? (
-							<ChevronLeftIcon />
-						) : (
-							<ChevronRightIcon />
-						)}
+						<ChevronLeftIcon />
 					</IconButton>
 				</div>
 				<div className={classes.drawerBody}>
@@ -194,39 +296,63 @@ const NewPalette = () => {
 						variant='contained'
 						color='primary'
 						onClick={handleGetRandomColor}
+						disabled={state.colors.length >= maxColors}
 					>
-						GET RANDOM COLOR
+						RANDOM COLOR
 					</Button>
 					<Button
 						variant='contained'
 						color='secondary'
-						onClick={() => setColors([])}
+						onClick={() => setstate({ ...state, colors: [] })}
 					>
 						CLEAR PALETTE
 					</Button>
 
 					<ChromePicker
 						className={classes.picker}
-						color={background}
+						color={state.color}
 						onChangeComplete={handleChangeComplete}
 					/>
-					<TextField id='standard-basic' label='ColorName' />
+					<ValidatorForm onSubmit={addColor}>
+						<TextValidator
+							label='ColorName'
+							onChange={handleInputChange}
+							name='colorName'
+							value={state.colorName}
+							validators={['required', 'isColorNameUnique', 'isColorUnique']}
+							errorMessages={[
+								'this field is required',
+								' color name must be unique',
+								'color already used',
+							]}
+						/>
+						<div style={{ marginTop: '30px' }}>
+							<Button
+								type='submit'
+								variant='contained'
+								className={classes.addButton}
+								disabled={state.colors.length >= maxColors}
+							>
+								{state.colors.length >= maxColors
+									? 'PALETTE FULL'
+									: 'ADD COLOR'}
+							</Button>
+						</div>
+					</ValidatorForm>
 				</div>
 			</Drawer>
 			<main
 				className={clsx(classes.content, {
-					[classes.contentShift]: open,
+					[classes.contentShift]: state.open,
 				})}
 			>
 				<div className={classes.drawerHeader} />
-				<div className={classes.colors}>
-					{colors.map((color) => (
-						<div
-							className={`handle ${classes.colorBox}`}
-							style={{ backgroundColor: color }}
-						/>
-					))}
-				</div>
+				<DraggableList
+					colors={state.colors}
+					deleteColor={deleteColor}
+					axis='xy'
+					onSortEnd={onSortEnd}
+				/>
 			</main>
 		</div>
 	);

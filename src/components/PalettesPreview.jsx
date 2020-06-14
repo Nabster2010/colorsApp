@@ -1,5 +1,4 @@
 import React from 'react';
-import Palette from './Palette';
 import './PlalettesPreview.css';
 import { Link } from 'react-router-dom';
 import MiniPalette from './MiniPalette';
@@ -27,6 +26,7 @@ const useStyles = makeStyles({
 		display: 'flex',
 		width: '100%',
 		justifyContent: 'space-between',
+		alignItems: 'center',
 		color: 'white',
 	},
 	palettes: {
@@ -53,7 +53,7 @@ const PalettesPreview = ({ palettes }) => {
 				<div className={classes.nav}>
 					<h1>React Colors</h1>
 					<Link className={classes.newPalette} to='/palettes/new'>
-						New Palette
+						Create Palette
 					</Link>
 				</div>
 				<div className={classes.palettes}>
