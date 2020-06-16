@@ -1,6 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { useHistory } from 'react-router-dom';
+import DeleteIcon from '@material-ui/icons/Delete';
+import DeletePaletteDialog from './DeletePaletteDialog';
 const useStyles = makeStyles({
 	root: {
 		justifyContent: 'center',
@@ -9,6 +11,9 @@ const useStyles = makeStyles({
 		backgroundColor: 'white',
 		borderRadius: '5px',
 		position: 'relative',
+		'&:hover svg': {
+			opacity: '1',
+		},
 	},
 	colors: {
 		backgroundColor: '#dea1e4',
@@ -40,16 +45,42 @@ const useStyles = makeStyles({
 		marginLeft: '0.5rem',
 		fontSize: '1.5rem',
 	},
+	deleteBtn: {
+		position: 'absolute',
+		width: '20px',
+		height: '20px',
+		color: 'white',
+		top: '0',
+		right: '0',
+		padding: '10px',
+		zIndex: '2',
+		backgroundColor: '#eb3c30',
+		opacity: '0',
+		transition: 'all 0.3s ease-in-out',
+		borderRadius: '10%',
+	},
 });
 
-const MiniPalette = ({ palette }) => {
+const MiniPalette = ({
+	palette,
+	openDeleteConfirmation,
+	closeDeleteConfirmation,
+	DeleteConfirmOpen,
+	deletePalette,
+}) => {
 	const history = useHistory();
 	const classes = useStyles();
+	const handleClick = (e) => {
+		e.stopPropagation();
+		//openDeleteConfirmation();
+		deletePalette(palette.id);
+	};
 	return (
 		<div
 			className={classes.root}
 			onClick={() => history.push(`/palette/${palette.id}`)}
 		>
+			<DeleteIcon className={classes.deleteBtn} onClick={handleClick} />
 			<div className={classes.colors}>
 				{palette.colors.map((color) => (
 					<div
@@ -63,6 +94,13 @@ const MiniPalette = ({ palette }) => {
 				{palette.paletteName}{' '}
 				<span className={classes.emoji}>{palette.emoji}</span>
 			</h5>
+			<DeletePaletteDialog
+				open={DeleteConfirmOpen}
+				handleClose={closeDeleteConfirmation}
+				handleOpen={openDeleteConfirmation}
+				deletePalette={deletePalette}
+				palette={palette}
+			/>
 		</div>
 	);
 };

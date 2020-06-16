@@ -3,13 +3,12 @@ import './PlalettesPreview.css';
 import { Link } from 'react-router-dom';
 import MiniPalette from './MiniPalette';
 import { makeStyles } from '@material-ui/styles';
-
 const useStyles = makeStyles({
 	root: {
 		backgroundColor: 'blue',
 		display: 'flex',
 		flexDirection: 'column',
-		height: '100vh',
+		height: '100%',
 		justifyContent: 'center',
 		alignItems: 'center',
 		overflow: 'scroll',
@@ -31,6 +30,7 @@ const useStyles = makeStyles({
 	},
 	palettes: {
 		display: 'grid',
+
 		width: '100%',
 		gridTemplateColumns: 'repeat(3,30%)',
 		gridGap: '5%',
@@ -45,7 +45,15 @@ const useStyles = makeStyles({
 	},
 });
 
-const PalettesPreview = ({ palettes }) => {
+const PalettesPreview = ({ palettes, deletePalette }) => {
+	const [DeleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
+	const openDeleteConfirmation = () => {
+		setDeleteConfirmOpen(true);
+	};
+	const closeDeleteConfirmation = () => {
+		setDeleteConfirmOpen(false);
+	};
+
 	const classes = useStyles();
 	return (
 		<div className={classes.root}>
@@ -58,7 +66,14 @@ const PalettesPreview = ({ palettes }) => {
 				</div>
 				<div className={classes.palettes}>
 					{palettes.map((palette) => (
-						<MiniPalette palette={palette} key={palette.id} />
+						<MiniPalette
+							palette={palette}
+							key={palette.id}
+							openDeleteConfirmation={openDeleteConfirmation}
+							closeDeleteConfirmation={closeDeleteConfirmation}
+							DeleteConfirmOpen={DeleteConfirmOpen}
+							deletePalette={deletePalette}
+						/>
 					))}
 				</div>
 			</div>

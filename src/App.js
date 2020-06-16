@@ -9,18 +9,32 @@ import { generateLevels } from './colorHelpers';
 import NewPalette from './components/NewPalette';
 
 function App() {
-	const [palettes, setPalettes] = React.useState(seedColors);
+	const [palettes, setPalettes] = React.useState(
+		JSON.parse(localStorage.getItem('palettes')) || seedColors
+	);
 	const findPalette = (id) => palettes.find((palette) => palette.id === id);
 	const savePalette = (newPalette) => {
 		setPalettes([...palettes, newPalette]);
 	};
+	const deletePalette = (id) => {
+		setPalettes(palettes.filter((palette) => palette.id !== id));
+	};
+	React.useEffect(() => {
+		localStorage.setItem('palettes', JSON.stringify(palettes));
+	}, [palettes]);
 	return (
 		<div className='App'>
 			<Switch>
 				<Route
 					exact
 					path='/palettes'
-					render={(props) => <PalettesPreview palettes={palettes} {...props} />}
+					render={(props) => (
+						<PalettesPreview
+							palettes={palettes}
+							{...props}
+							deletePalette={deletePalette}
+						/>
+					)}
 				/>
 				<Route
 					exact

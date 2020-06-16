@@ -1,4 +1,5 @@
 import React from 'react';
+import './ColorBox.css';
 import { ColorBox } from './ColorBox';
 import { makeStyles } from '@material-ui/styles';
 import { useParams } from 'react-router-dom';
@@ -7,19 +8,47 @@ import Snackbar from '@material-ui/core/Snackbar';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Header from './Header';
+import sizes from './styles/sizes';
+
 const useStyles = makeStyles({
-	root: {
-		height: '100%',
-	},
 	colors: {
 		height: '100%',
 	},
+	root: {
+		height: '100%',
+	},
+	colorBoxBack: {
+		width: '20%',
+		display: 'inline-block',
+		height: '50%',
+		cursor: ' pointer',
+		position: 'relative',
+		marginBottom: '-3.5px',
+		backgroundColor: 'black',
+		'&:hover button': {
+			opacity: '1',
+		},
+		[sizes.down('lg')]: {
+			width: '25%',
+			height: '33%',
+		},
+		[sizes.down('md')]: {
+			width: '50%',
+			height: '20%',
+		},
+		[sizes.down('xs')]: {
+			width: '100%',
+			height: '10%',
+		},
+	},
 });
-const Shades = ({ palette, history }) => {
+
+const Shades = (props) => {
+	const classes = useStyles(props);
+	const { palette, history } = props;
 	const [open, setOpen] = React.useState(false);
 	const [selection, setselection] = React.useState('hex');
 	const handleClose = () => setOpen(false);
-	const classes = useStyles();
 	const { hex } = useParams();
 	const { colors } = palette;
 	const getShades = (colorsObject, colorId) => {
@@ -49,7 +78,7 @@ const Shades = ({ palette, history }) => {
 						selection={selection}
 					/>
 				))}
-				<div className='color-box back'>
+				<div className={classes.colorBoxBack}>
 					<button className='go-back' onClick={() => history.goBack()}>
 						Back
 					</button>
